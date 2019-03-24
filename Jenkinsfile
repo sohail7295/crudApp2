@@ -1,7 +1,6 @@
 pipeline {
     agent any
     environment {
-        NEXUS_IP= "10.0.1.8"
         DOCKER_IMAGE_NAME = "dineshp4/crudapp"
         CANARY_REPLICAS = 0
     }
@@ -10,11 +9,6 @@ pipeline {
         maven 'maven2'
     }
         stages {
-           /* stage ('Git') {
-                steps {
-                    git 'https://github.com/dineshp4/crudApp'
-                }
-            } */
             stage('Build') {
                 steps {
                     sh 'mvn -Dmaven.test.failure.ignore=true clean package'
@@ -27,6 +21,9 @@ pipeline {
                 }
             }
             stage ('Docker Build') {
+                when {
+                    branch 'master'
+                }
                 steps {
                     sh 'wget http://10.0.1.8:8081/repository/maven-releases/maven-Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
                     script {
@@ -36,7 +33,9 @@ pipeline {
                 }
             }
            stage ('Docker Push Image') {
-                steps{
+               when {
+                    branch 'master'
+                }                steps{
                     script {
                         docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                             app.push("${env.BUILD_NUMBER}")
@@ -46,9 +45,9 @@ pipeline {
                 }
             }
             stage('CanaryDeploy') {
-               /* when {
+               when {
                     branch 'master'
-                } */
+                }
                 environment {
                     CANARY_REPLICAS = 1
                 }
@@ -61,9 +60,9 @@ pipeline {
                 }
             }
             stage('SmokeTest') {
-               /* when {
+                when {
                     branch 'master'
-                } */
+                }
                 steps {
                     script {
                         sleep (time: 25)
@@ -78,6 +77,9 @@ pipeline {
                 }
             }
             stage ('Deploy To Production') {
+                when {
+                    branch 'master'
+                }
                 steps {
                     input 'Deploy to Production?'
                     milestone(1)
