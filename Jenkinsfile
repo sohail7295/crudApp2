@@ -6,7 +6,7 @@ pipeline {
     }
     tools {
      //   jdk 'Java'
-        maven 'maven2'
+        maven 'maven'
     }
         stages {
             stage('Build') {
@@ -16,6 +16,9 @@ pipeline {
                     }
             }
             stage ('Nexus') {
+                when {
+                    branch 'master'
+                }
                 steps {
                     nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'maven-Central', nexusUrl: '10.0.1.8:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '1.${BUILD_NUMBER}'
                 }
