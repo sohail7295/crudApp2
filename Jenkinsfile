@@ -28,7 +28,7 @@ pipeline {
                     branch 'master'
                 }
                 steps {
-                    sh 'wget http://10.0.1.8:8081/repository/maven-releases/maven-Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
+                    sh 'wget http://10.0.1.9:8081/repository/maven-releases/maven-Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
                     script {
                         app = docker.build(DOCKER_IMAGE_NAME)
                     }
@@ -38,7 +38,8 @@ pipeline {
            stage ('Docker Push Image') {
                when {
                     branch 'master'
-                }                steps{
+                }
+                steps{
                     script {
                         docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                             app.push("${env.BUILD_NUMBER}")
