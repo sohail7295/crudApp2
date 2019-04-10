@@ -11,12 +11,15 @@ pipeline {
         stages {
             stage('Build') {
                 steps {
-                    slackSend channel: '#devops', color: 'Red', message: 'build started', tokenCredentialId: 'slack_token'
+                    slackSend "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                     sh 'mvn -Dmaven.test.failure.ignore=true clean package'
                     //sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
                     }
             }
             stage ('Nexus') {
+                when {
+                    branch 'master'
+                }
                 steps {
                     nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'maven-Central', nexusUrl: '$NEXUS_IP', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '1.${BUILD_NUMBER}'
                 }
