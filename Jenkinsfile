@@ -11,7 +11,7 @@ pipeline {
         stages {
             stage('Build') {
                 steps {
-                    slackSend channel: '#devops', color: '#FFFF00',  message: '${currentBuild.result}', tokenCredentialId: 'slack_token'
+                    slackSend channel: '#devops', color: '#FFFF00',  message: ${currentBuild.result}, tokenCredentialId: 'slack_token'
                     sh 'mvn -Dmaven.test.failure.ignore=true clean package'
                     //sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
                     }
