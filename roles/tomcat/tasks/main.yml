@@ -1,0 +1,43 @@
+- name: Create tomcat Group
+  group: name= tomcat
+
+- name: Add User tomcat
+  user: name=tomcat group=tomcat home=/usr/share/tomcat createhome=no shell=/bin/false
+  become: True
+  become_method: sudo
+- name: Download Tomcat
+  get_url: url=http://apache.mirrors.hoobly.com/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz dest=/opt/apache-tomcat-8.5.39.tar.gz
+
+- name: Extract archieve
+  command: chdir=/usr/share /bin/tar xvf -C /opt/apache-tomcat-8.5.39.tar.gz
+
+- name: Symlink install directory
+  file: src=/opt/apache-tomcat-8.5.39.tar.gz path=/usr/share/tomcat state=link
+
+- name: Change ownership of tomcat installation
+  file: path=/usr/share/tomcat/ owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Configure Tomcat server
+  template: src=server.xml dest=/usr/share/tomcat/conf/
+  notify: restart tomcat
+
+- name: Configure Tomcat users
+  template: src=tomcat-users.xml dest=/usr/share/tomcat/conf/
+  notify: restart tomcat
+
+- name: Install tomcat init script
+  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+
+- name: Start Tomcat
+  service: name=tomcat state=started enabled=yes
+
+- name: Deploy iptable rules
+  template: src=iptables-save dest=/etc/sysconfig/iptables
+  when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'"
+  notify: restart iptables
+
+- name: remove firewall
+  yum: name=firewalld state=absent
+  when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'"
+- name: Wait for tomcat to start
+  wait_for: port={{http_port}}
