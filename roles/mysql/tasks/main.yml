@@ -1,0 +1,14 @@
+---
+
+- name: download the mysql repo
+  get_url:
+    url: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+    dest: /tmp/mysql57.rpm
+    mode: 0440
+- name: Install the repo
+  yum: name=/tmp/mysql57.rpm state=present
+
+#Install mysql-server
+
+- name: Install the mysql-server
+  yum: name=mysql-server state=present
