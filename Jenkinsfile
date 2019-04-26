@@ -1,12 +1,12 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE_NAME = "dineshp4/crudapp"
+        DOCKER_IMAGE_NAME = "sohail7295/crudapp"
         CANARY_REPLICAS = 0
     }
     tools {
      //   jdk 'Java'
-        maven 'maven2'
+        maven 'maven'
     }
         stages {
            /* stage ('Git') {
@@ -22,7 +22,7 @@ pipeline {
             }
             stage ('Nexus') {
                 steps {
-                    nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'maven-Central', nexusUrl: '10.0.1.8:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '1.${BUILD_NUMBER}'
+                    nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'Central', nexusUrl: '172.31.6.110:8081', nexusVersion: 'nexus2', protocol: 'http', repository: 'releases', version: '1.${BUILD_NUMBER}'
                 }
             }
             stage ('Docker Build') {
@@ -30,7 +30,7 @@ pipeline {
                     branch 'master'
                 } 
                 steps {
-                    sh 'wget http://10.0.1.8:8081/repository/maven-releases/maven-Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
+                    sh 'wget http://172.31.6.110:8081/repository/releases/Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
                     script {
                         app = docker.build(DOCKER_IMAGE_NAME)
                     }
