@@ -30,7 +30,7 @@ pipeline {
                     branch 'master'
                 } 
                 steps {
-                    sh 'wget http://172.31.6.110:8081/nexus/repository/releases/Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
+                    sh 'wget http://172.31.6.110:8081/nexus/service/local/repositories/releases/content/Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
                     script {
                         app = docker.build(DOCKER_IMAGE_NAME)
                     }
